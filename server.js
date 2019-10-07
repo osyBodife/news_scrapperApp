@@ -37,17 +37,10 @@ app.use(express.static("public"));
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
-// Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/scraperApp", { useNewUrlParser: true });
-// var db = process.env.MONGODB_URI || "mongodb://localhost/scraperApp";
-// //connect
-// mongoose.connect(db, function(error){
-//     if(error){
-//         console.log(error);
-//     }else{
-//         console.log("connected to successfully")
-//     }
-// })
+/// If deployed, use the deployed database. Otherwise use the local mongoHeadlines database
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/scraperApp";
+
+mongoose.connect(MONGODB_URI);
 
 // // Routes
 
@@ -134,7 +127,8 @@ app.post("/comment/:id", function (req, res) {
             // If a Comment was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Comment
             // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
             // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-            return db.Article.findOneAndUpdate({ _id: req.params.id }, { comment: dbComment._id }, { new: true });
+           // return db.Article.findOneAndUpdate({ _id: req.params.id }, { comment: dbComment._id }, { new: true });
+            return db.Article.findOneAndUpdate({}, { $push: { notes: dbNote._id } }, { new: true });
         })
         .then(function (dbArticle) {
             // If we were able to successfully update an Article, send it back to the client
@@ -147,6 +141,22 @@ app.post("/comment/:id", function (req, res) {
         });
 });
 
+// Route for saving a new Note to the db and associating it with a User
+app.post("/submit", function (req, res) {
+    // Create a new Note in the db
+    db.Item.create(req.body)
+        .then(function (dbItem) {
+            // If a Note was created successfully, find one User (there's only one) and push the new Note's _id to the User's `notes` array
+            // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
+            // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
+            return db.User.findOneAndUpdate({}, { $push: { notes: dbNote._id } }, { new: true });
+            res.json(dbItem);
+        })
+        .catch(function (err) {
+            // If an error occurs, send it back to the client
+            res.json(err);
+        });
+});
 
     // Start the server
     app.listen(PORT, function () {
