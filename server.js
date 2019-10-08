@@ -2,7 +2,7 @@ var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 var exphbs = require("express-handlebars");
-var path = require("path");
+const path = require('path');
 
 var request = require("request");
 
@@ -16,7 +16,8 @@ var axios = require("axios");
 // Require all models
 var db = require("./models");
 
-var PORT = 3000;
+//var PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
@@ -138,7 +139,7 @@ app.post("/comment/:id", function (req, res) {
             // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
             // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
            // return db.Article.findOneAndUpdate({ _id: req.params.id }, { comment: dbComment._id }, { new: true });
-            return db.Article.findOneAndUpdate({}, { $push: { notes: dbNote._id } }, { new: true });
+            return db.Article.findOneAndUpdate({}, { $push: { comment: dbComment._id } }, { new: true });
         })
         .then(function (dbArticle) {
             // If we were able to successfully update an Article, send it back to the client
