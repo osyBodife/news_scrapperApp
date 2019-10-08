@@ -44,10 +44,16 @@ mongoose.connect(MONGODB_URI);
 
 // // Routes
 
-// Routes
+// // Routes
+// app.get("/", function (req, res) {
+//     //res.sendFile(path.join(__dirname, "../public/index.html"));
+//     res.render("index");
+// });
+
 app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname, "../public/index.html"));
+    res.redirect("/articles");
 });
+
 // A GET route for scraping the echoJS website
 app.get("/scrape", function (req, res) {
     // First, we grab the body of the html with axios
