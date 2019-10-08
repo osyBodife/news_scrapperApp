@@ -151,7 +151,15 @@ app.post("/comment/:id", function (req, res) {
             res.json(err);
         });
 });
-
+app.get("/articles-json", function (req, res) {
+    Article.find({}, function (err, doc) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(doc);
+        }
+    });
+});
 
     // Start the server
     app.listen(PORT, function () {
